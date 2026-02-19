@@ -1,0 +1,27 @@
+import sql from 'mssql';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const config: sql.config = {
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  server: process.env.DB_SERVER as string,
+  database: process.env.DB_NAME,
+  options: {
+    encrypt: false, // true only for Azure
+    trustServerCertificate: true
+  }
+};
+
+export const poolPromise: Promise<sql.ConnectionPool> =
+  new sql.ConnectionPool(config)
+    .connect()
+    .then(pool => {
+      console.log('Connected to SQL Server');
+      return pool;   // ✅ VERY IMPORTANT
+    })
+    .catch(err => {
+      console.error('Database Connection Failed:', err);
+      throw err;     // ✅ also important
+    });
